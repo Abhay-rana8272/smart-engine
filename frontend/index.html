@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smart Blog Search</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* CSS Variables */
+    :root {
+      --color-bg: #ffffff;
+      --color-primary: #111111;
+      --color-secondary: #6b7280; /* neutral gray for body text */
+      --color-accent: #2563eb; /* blue accent */
+      --color-button-bg: #111111;
+      --color-button-text: #ffffff;
+      --border-radius: 0.75rem;
+      --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --font-family: 'Inter', sans-serif;
+    }
+
+    /* Reset & base styles */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--color-bg);
+      color: var(--color-secondary);
+      font-family: var(--font-family);
+      font-size: 18px;
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Sticky header/nav */
+    header {
+      position: sticky;
+      top: 0;
+      background: var(--color-bg);
+      border-bottom: 1px solid #e5e7eb;
+      z-index: 1000;
+      box-shadow: var(--shadow-light);
+    }
+
+    nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--color-primary);
+      letter-spacing: -0.02em;
+      user-select: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      font-weight: 600;
+      color: var(--color-secondary);
+      user-select: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--color-secondary);
+      transition: color 0.3s ease;
+    }
+    .nav-links a:hover,
+    .nav-links a:focus {
+      color: var(--color-primary);
+      outline: none;
+    }
+
+    main {
+      flex: 1;
+      max-width: 1200px;
+      margin: 4rem auto 6rem;
+      padding: 0 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    /* Hero / headline */
+    h1 {
+      font-size: 3rem; /* ~48px */
+      font-weight: 700;
+      color: var(--color-primary);
+      text-align: center;
+      margin: 0 0 1rem 0;
+      line-height: 1.1;
+    }
+    .highlight {
+      color: var(--color-accent);
+    }
+
+    /* Subtext below headline */
+    .subtext {
+      text-align: center;
+      max-width: 520px;
+      margin: 0 auto;
+      color: var(--color-secondary);
+      font-weight: 500;
+      font-size: 1.125rem;
+    }
+
+    /* Search box */
+    .search-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      max-width: 520px;
+      padding: 1rem 1.25rem;
+      font-size: 1.125rem;
+      border: 2px solid #d1d5db;
+      border-radius: var(--border-radius);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      font-family: var(--font-family);
+      color: var(--color-primary);
+    }
+    input[type="text"]::placeholder {
+      color: #9ca3af;
+      font-weight: 500;
+    }
+    input[type="text"]:focus {
+      border-color: var(--color-accent);
+      outline: none;
+      box-shadow: 0 0 6px var(--color-accent);
+    }
+
+    .buttons {
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    button {
+      flex: 1 1 auto;
+      cursor: pointer;
+      padding: 1rem 1.75rem;
+      font-size: 1.125rem;
+      font-weight: 700;
+      border: none;
+      border-radius: var(--border-radius);
+      background-color: var(--color-button-bg);
+      color: var(--color-button-text);
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      user-select: none;
+      min-width: 140px;
+    }
+    button:hover,
+    button:focus {
+      background-color: #444444;
+      outline: none;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+    button.secondary {
+      background-color: #e5e7eb;
+      color: var(--color-primary);
+    }
+    button.secondary:hover,
+    button.secondary:focus {
+      background-color: #cacaca;
+      outline: none;
+      color: var(--color-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Results container */
+    #results {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    #results > div {
+      background: var(--color-bg);
+      padding: 1.5rem 2rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-light);
+      border: 1px solid #e5e7eb;
+      transition: box-shadow 0.3s ease;
+    }
+    #results > div:hover,
+    #results > div:focus-within {
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+    }
+
+    #results h2 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: var(--color-primary);
+      font-weight: 700;
+      font-size: 1.375rem;
+    }
+    #results p {
+      margin: 0;
+      color: var(--color-secondary);
+      line-height: 1.5;
+      white-space: pre-line;
+      font-weight: 500;
+    }
+
+    /* About Us section */
+    #about-us {
+      display: none; /* Hidden by default */
+      background: var(--color-bg);
+      padding: 2rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-light);
+    }
+
+    /* Features section */
+    #features {
+      display: none; /* Hidden by default */
+      background: var(--color-bg);
+      padding: 2rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-light);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.9rem;
+      color: var(--color-secondary);
+      background: #f9fafb;
+      user-select: none;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    /* Responsive adjustments */
+    @media screen and (max-width: 640px) {
+      h1 {
+        font-size: 2.25rem;
+      }
+      input[type="text"], .buttons {
+        max-width: 100%;
+        width: 100%;
+      }
+      button {
+        min-width: unset;
+        flex: 1 1 100%;
+      }
+      nav {
+        padding: 1rem;
+      }
+      .nav-links {
+        gap: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header role="banner">
+    <nav role="navigation" aria-label="Primary navigation">
+      <div class="logo" tabindex="0">Smart Blog</div>
+      <div class="nav-links">
+        <a href="#" tabindex="0" onclick="showAboutUs()">About Us</a>
+        <a href="#" tabindex="0" onclick="showFeatures()">Features</a>
+        <a href="#" tabindex="0">Home</a>
+      </div>
+    </nav>
+  </header>
+  <main role="main" class="container">
+    <h1><span class="highlight">Smart</span> Blog Search</h1>
+    <p class="subtext">Find personal blogs and articles by content, theme, or keywords with ease and elegance.</p>
+    <section class="search-box" aria-label="Search blogs and articles">
+      <input
+        type="text"
+        id="query"
+        aria-label="Search input"
+        placeholder="Search blogs by content, theme, or keywords..."
+        autocomplete="off"
+      />
+      <div class="buttons">
+        <button type="button" onclick="search()" aria-label="Search blogs">Search</button>
+        <button type="button" class="secondary" onclick="summarize()" aria-label="Summarize and tag blogs">Summarize & Tag</button>
+      </div>
+    </section>
+    <section id="results" aria-live="polite" aria-relevant="additions" tabindex="0"></section>
+    <section id="about-us" aria-labelledby="about-us-title">
+      <h2 id="about-us-title">About Us</h2>
+      <p>Welcome to SMARTBLOG – your personal gateway to discovering inspiring blogs, authentic stories, and insightful articles from writers around the world.</p>
+      <p>We created SMARTBLOG with a simple goal: to make it easier for readers to explore high-quality, independent content across a wide range of topics—from personal growth and travel diaries to tech insights, creative writing, lifestyle advice, and beyond.</p>
+      <p>In a world flooded with information, personal voices often get lost. That’s where we step in. Our intelligent search engine helps you cut through the noise and find personal blogs and niche articles that truly matter to you. Whether you're looking for raw life experiences, expert opinions, or just a fresh perspective, SMARTBLOG connects you with creators who write with heart, purpose, and originality.</p>
+      <h3>Why SMARTBLOG?</h3>
+      <ul>
+        <li>🔎 Focused Search: Designed specifically for discovering personal blogs and independent writers.</li>
+        <li>📚 Diverse Content: Explore content across travel, health, tech, productivity, culture, and more.</li>
+        <li>🌍 Global Voices: Find blogs from different countries, cultures, and unique life experiences.</li>
+        <li>🧠 Smart Discovery: Our algorithm learns your preferences and helps you find what matters to you.</li>
+      </ul>
+    </section>
+    <section id="features" aria-labelledby="features-title">
+      <h2 id="features-title">Features</h2>
+      <ul>
+        <li><strong>Featured Picks:</strong> Curated blogs and articles handpicked by our team. Discover what’s trending and worth reading today.</li>
+        <li><strong>Editor’s Choice:</strong> Thoughtfully selected pieces by our editors that reflect powerful writing, unique perspectives, or trending topics.</li>
+        <li><strong>Top Reads:</strong> The most read and loved articles on the platform. See what others are enjoying the most right now.</li>
+        <li><strong>Blog Spotlight:</strong> Each week, we spotlight standout blogs that deserve your attention for their creativity, insight, or storytelling.</li>
+        <li><strong>Rising Voices:</strong> Discover new and underrated bloggers whose work is gaining momentum. Fresh, raw, and real.</li>
+        <li><strong>Trending Now:</strong> The blogs currently catching the internet’s eye. See what’s buzzing in real time.</li>
+        <li><strong>Staff Favorites:</strong> A personal selection from our team — articles we genuinely love and think you will too.</li>
+        <li><strong>Inspire Me:</strong> Feeling lost in the content jungle? Click here to get a random but meaningful read that sparks your mind.</li>
+      </ul>
+    </section>
+  </main>
+  <footer role="contentinfo">Made with ❤️ by Smart Blog Search</footer>
+  <script>
+    const BASE_URL = "http://127.0.0.1:8000"; // Change to your backend URL after deployment
+
+    async function search() {
+      const q = document.getElementById('query').value.trim();
+      if (!q) {
+        alert("Please enter a search query.");
+        return;
+      }
+      const res = await fetch(`${BASE_URL}/search?q=${encodeURIComponent(q)}`);
+      if (!res.ok) {
+        alert("Search failed. Please try again.");
+        return;
+      }
+      const data = await res.json();
+      const resultsDiv = document.getElementById('results');
+      if (data.results.length === 0) {
+        resultsDiv.innerHTML = "<p>No results found.</p>";
+        return;
+      }
+      resultsDiv.innerHTML = data.results.map(r => `
+        <article tabindex="0">
+          <h2>${r.title}</h2>
+          <p>${r.content}</p>
+        </article>
+      `).join('');
+    }
+
+    async function summarize() {
+      const res = await fetch(`${BASE_URL}/summarize`);
+      if (!res.ok) {
+        alert("Failed to fetch summaries. Please try again.");
+        return;
+      }
+      const data = await res.json();
+      const resultsDiv = document.getElementById('results');
+      if (!data.enriched || data.enriched.length === 0) {
+        resultsDiv.innerHTML = "<p>No summaries available.</p>";
+        return;
+      }
+      resultsDiv.innerHTML = data.enriched.map(r => `
+        <article tabindex="0">
+          <h2>${r.title}</h2>
+          <p><strong>Summary & Tags:</strong><br>${r.summary_and_tags.replaceAll('\n', '<br>')}</p>
+        </article>
+      `).join('');
+    }
+
+    function showAboutUs() {
+      const aboutUsSection = document.getElementById('about-us');
+      aboutUsSection.style.display = aboutUsSection.style.display === 'none' || aboutUsSection.style.display === '' ? 'block' : 'none';
+      document.getElementById('features').style.display = 'none'; // Hide features if about us is shown
+    }
+
+    function showFeatures() {
+      const featuresSection = document.getElementById('features');
+      featuresSection.style.display = featuresSection.style.display === 'none' || featuresSection.style.display === '' ? 'block' : 'none';
+      document.getElementById('about-us').style.display = 'none'; // Hide about us if features is shown
+    }
+  </script>
+</body>
+</html>
